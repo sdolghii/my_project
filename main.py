@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
@@ -57,7 +57,7 @@ async def get_user(user_id: int, db: AsyncSession = Depends(get_db)):
     user = result.scalar_one_or_none()
 
     if user is None:
-        return {"error": "User not found"}
+        raise HTTPException(status_code=404, detail="User not found")
 
     return {
         "id": user.id,
@@ -73,7 +73,7 @@ async def delete_user(user_id: int, db: AsyncSession = Depends(get_db)):
     user = result.scalar_one_or_none()
 
     if user is None:
-        return {"error": "User not found"}
+        raise HTTPException(status_code=404, detail="User not found")
 
     await db.delete(user)
     await db.commit()
@@ -87,7 +87,7 @@ async def update_user(user_id: int, user_data: UserSchema, db: AsyncSession = De
     user = result.scalar_one_or_none()
 
     if user is None:
-        return {"error": "User not found"}
+        raise HTTPException(status_code=404, detail="User not found")
 
     user.name = user_data.name
     user.age = user_data.age
