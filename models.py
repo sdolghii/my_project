@@ -9,3 +9,4 @@ class UserModel(Base):
     name = Column(String)
     age = Column(Integer)
     email = Column(String, nullable=True)
+    hashed_password = Column(String, nullable=True)

@@ -5,6 +5,7 @@ from sqlalchemy import select
 from db import get_db
 from models import UserModel
 from schemas import UserSchema, UserResponse
+from auth import get_current_user
 
 router = APIRouter()
 
@@ -25,20 +26,10 @@ async def create_user(user: UserSchema, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/users", response_model=list[UserResponse])
-async def get_users(db: AsyncSession = Depends(get_db)):
+async def get_users(db: AsyncSession = Depends(get_db), current_user: dict = Depends(get_current_user)):
     result = await db.execute(select(UserModel))
     users = result.scalars().all()
-
-    return [
-        {
-            "id": user.id,
-            "name": user.name,
-            "age": user.age,
-            "email": user.email
-        }
-        for user in users
-    ]
-
+    return users
 
 @router.get("/users/{user_id}", response_model=UserResponse)
 async def get_user(user_id: int, db: AsyncSession = Depends(get_db)):
